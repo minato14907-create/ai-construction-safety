@@ -68,7 +68,7 @@ tr:hover td{background:#1f2937}
 <div class="grid">
 <div class="card">
 <div class="card-hd"><h2>Live Camera</h2></div>
-<div class="feed-box"><img src="/video_feed" alt="Feed" id="feed"></div>
+<div class="feed-box"><img src="/api/frame" alt="Feed" id="feed"></div>
 </div>
 <div class="card">
 <div class="card-hd"><h2>Violation Summary</h2></div>
@@ -98,6 +98,7 @@ h+='</table>';document.getElementById('violations').innerHTML=h;
 }).catch(function(){});
 }
 load();setInterval(load,3000);
+setInterval(function(){document.getElementById('feed').src='/api/frame?_t='+Date.now()},1000);
 </script>
 </body>
 </html>"""
@@ -124,23 +125,19 @@ class DashboardServer:
         def api_violations():
             return jsonify({"violations": self.alert_mgr.get_recent_violations(100)})
 
-        @self.app.route("/video_feed")
-        def video_feed():
+        @self.app.route("/api/frame")
+        def api_frame():
             import cv2
             import numpy as np
-            def generate():
-                while True:
-                    if self.frame is not None:
-                        ret, buf = cv2.imencode(".jpg", self.frame)
-                        if ret:
-                            yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + buf.tobytes() + b"\r\n")
-                    else:
-                        img = np.zeros((480, 640, 3), dtype=np.uint8)
-                        cv2.putText(img, "No Camera Feed", (150, 240), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                        ret, buf = cv2.imencode(".jpg", img)
-                        if ret:
-                            yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + buf.tobytes() + b"\r\n")
-            return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
+            if self.frame is not None:
+                ret, buf = cv2.imencode(".jpg", self.frame)
+            else:
+                img = np.zeros((480, 640, 3), dtype=np.uint8)
+                cv2.putText(img, "No Camera Feed", (130, 240), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 100, 100), 2)
+                ret, buf = cv2.imencode(".jpg", img)
+            if ret:
+                return Response(buf.tobytes(), mimetype="image/jpeg")
+            return Response(b"", status=500)
 
     def update_frame(self, frame):
         self.frame = frame
