@@ -105,8 +105,14 @@ class DashboardServer:
     def update_frame(self, frame):
         self.frame = frame
 
-    def start(self):
-        host, port = Config.DASHBOARD_HOST, Config.DASHBOARD_PORT
-        t = threading.Thread(target=self.app.run, args=(host, port), kwargs={"debug": False, "use_reloader": False}, daemon=True)
-        t.start()
+    def start(self, block=False):
+        host = Config.DASHBOARD_HOST
+        port = Config.DASHBOARD_PORT
         print(f" Dashboard: http://{host}:{port}")
+        if block:
+            self.app.run(host=host, port=port, debug=False, use_reloader=False)
+        else:
+            t = threading.Thread(target=self.app.run, args=(host, port),
+                                 kwargs={"debug": False, "use_reloader": False},
+                                 daemon=True)
+            t.start()

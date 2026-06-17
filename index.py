@@ -129,7 +129,6 @@ def main():
     source = args.source
     if source is not None and source.isdigit():
         source = int(source)
-    detector = SafetyDetector()
     alert_mgr = AlertManager()
     lang = Config.LANGUAGE
     if lang == "th":
@@ -142,14 +141,10 @@ def main():
     if args.dashboard_only:
         dashboard = DashboardServer(alert_mgr)
         print(" Dashboard-only mode")
-        dashboard.start()
-        try:
-            import time
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            print("\n Shutting down...")
+        print(" Open http://localhost:5050 in your browser")
+        dashboard.start(block=True)
         return
+    detector = SafetyDetector()
     if args.image:
         if source is None:
             print("Error: --image requires --source <path>")
