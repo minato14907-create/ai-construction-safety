@@ -10,7 +10,7 @@ class Config:
     VIOLATION_LOG = "violations.csv"
     ALERT_SOUND = True
     DASHBOARD_HOST = "0.0.0.0"
-    DASHBOARD_PORT = 5000
+    DASHBOARD_PORT = 5050
     FRAME_WIDTH = 1280
     FRAME_HEIGHT = 720
 
