@@ -1,0 +1,10 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+violations.csv
+output_safety.mp4
+videos/
+*.pt
+construction_report.md.tmp
